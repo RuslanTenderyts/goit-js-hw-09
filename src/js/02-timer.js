@@ -46,11 +46,17 @@ btn.addEventListener('click', countdown);
 
 
 function countdown() {
+    let remainingTime;
     btn.disabled = true;
     timerId = setInterval(() => {
         const currentTime = new Date();
-        let countdownTime = convertMs(clickTime - currentTime);
+        remainingTime = clickTime - currentTime;
+        let countdownTime = convertMs(remainingTime);
         addLeadingZero(countdownTime);
+        
+        if (remainingTime < 1000) {
+            clearInterval(timerId)
+        };
         
     }, 1000)
 }
