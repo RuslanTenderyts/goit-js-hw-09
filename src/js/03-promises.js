@@ -1,12 +1,12 @@
 import throttle from 'lodash.throttle';
 import Notiflix from 'notiflix';
 
-const form = document.querySelector('.form');
+const formEl = document.querySelector('.form');
 
 let formData = {};
 
-form.addEventListener('input', throttle(onInput, 1000));
-form.addEventListener('submit', onFormSubmit);
+formEl.addEventListener('input', throttle(onInput, 1000));
+formEl.addEventListener('submit', onFormSubmit);
 
 function onInput(evt) {
   formData[evt.target.name] = evt.target.value;
@@ -17,10 +17,10 @@ function onFormSubmit(evt) {
 
   console.log(formData);
   let {delay, step, amount} = formData;
-  delay -= step;
-
+  delay = parseInt(delay);
+  step = parseInt(step);
+  
   for (let i = 0; i < amount; i += 1 ) {
-    delay += parseInt(step);
     createPromise( i, delay )
     .then(({ position, delay }) => {
       Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
@@ -28,6 +28,7 @@ function onFormSubmit(evt) {
     .catch(({ position, delay }) => {
       Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
     });
+    delay += step;
   };
 };
 

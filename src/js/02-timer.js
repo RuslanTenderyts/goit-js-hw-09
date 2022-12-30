@@ -4,74 +4,67 @@ import Notiflix from 'notiflix';
 
 const datetimePicker = document.querySelector('#datetime-picker')
 const btn = document.querySelector('[data-start]')
-const timerEl = document.querySelector('.timer');
-let timerId;
+const daysEl = document.querySelector('[data-days]')
+const hoursEl = document.querySelector('[data-hours]')
+const minutesEl = document.querySelector('[data-minutes]')
+const secondsEl = document.querySelector('[data-seconds]') 
 
-const day = document.querySelector('[data-days]')
-const hours = document.querySelector('[data-hours]')
-const minutes = document.querySelector('[data-minutes]')
-const seconds = document.querySelector('[data-seconds]') 
-
-
-// const namesOfDay = ['Неділя', "Понеділок", "Вівторок", "Середа", "Четвер", "Пятниця", "Субота"];
-// const namesOfMonth = ['Січень', "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
-
-let clickTime;
+let timerId = null;
+let clickTime = 0;
 
 const options = {
     enableTime: true,
     time_24hr: true,
-    defaultDate: new Date(),
+    defaultDate: Date.now(),
     minuteIncrement: 1,
-    onClose(selectedDates) {
-        clickTime = selectedDates[0];
-        if (clickTime > new Date() ) {
-            btn.disabled = false;
-            
-        } else {
+    onClose([selectedDates]) {
+        clickTime = selectedDates.getTime();
+        
+        if (clickTime <= Date.now() ) {
             btn.disabled = true;
             Notiflix.Notify.failure("Please choose a date in the future")
+
+        } else {
+            btn.disabled = false;
         }
-      console.log(clickTime);
     },
     onChange(){
         clearInterval(timerId)
     }
   };
 
-const calendar = flatpickr(datetimePicker, options)
+flatpickr(datetimePicker, options)
 
 btn.disabled = true;
-btn.addEventListener('click', countdown);
+btn.addEventListener('click', onClick);
 
 
-function countdown() {
-    let remainingTime;
+function onClick() {
     btn.disabled = true;
     timerId = setInterval(() => {
-        const currentTime = new Date();
-        remainingTime = clickTime - currentTime;
-        let countdownTime = convertMs(remainingTime);
-        addLeadingZero(countdownTime);
-        
-        if (remainingTime < 1000) {
+        let countdownTime = convertMs(remainingTime(clickTime));
+        setTimerValues(countdownTime);
+              
+        if (remainingTime(clickTime) < 1000) {
             clearInterval(timerId)
         };
-        
+
     }, 1000)
 }
 
-function addLeadingZero(value) {
-    const timeDay = value.days;
-    const timeHours = value.hours;
-    const timeMinutes = value.minutes;
-    const timeSeconds = value.seconds;
-    console.log( timeDay.toString().padStart(2, '0'), timeHours.toString().padStart(2, '0'), timeMinutes.toString().padStart(2, '0'), timeSeconds.toString().padStart(2, '0'));
+function remainingTime(time) {
+    return  (time - Date.now());
+}
 
-    day.textContent = timeDay.toString().padStart(2, '0');
-    hours.textContent = timeHours.toString().padStart(2, '0');
-    minutes.textContent = timeMinutes.toString().padStart(2, '0');
-    seconds.textContent = timeSeconds.toString().padStart(2, '0');
+function addLeadingZero(value) {
+    return String(value).padStart(2, '0');
+}
+
+function setTimerValues({days, hours, minutes, seconds}) {
+    daysEl.textContent = addLeadingZero(days);
+    hoursEl.textContent = addLeadingZero(hours);
+    minutesEl.textContent = addLeadingZero(minutes);
+    secondsEl.textContent = addLeadingZero(seconds);
 }
 
 function convertMs(ms) {
@@ -94,3 +87,5 @@ function convertMs(ms) {
   }
 
 
+// const namesOfDay = ['Неділя', "Понеділок", "Вівторок", "Середа", "Четвер", "Пятниця", "Субота"];
+// const namesOfMonth = ['Січень', "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
