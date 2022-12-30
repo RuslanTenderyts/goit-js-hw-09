@@ -2,7 +2,7 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import Notiflix from 'notiflix';
 
-const datetimePicker = document.querySelector('#datetime-picker')
+const datetimePicker = document.querySelector('input#datetime-picker')
 const btn = document.querySelector('[data-start]')
 const daysEl = document.querySelector('[data-days]')
 const hoursEl = document.querySelector('[data-hours]')
@@ -12,6 +12,9 @@ const secondsEl = document.querySelector('[data-seconds]')
 let timerId = null;
 let clickTime = 0;
 
+btn.disabled = true;
+btn.addEventListener('click', onClick);
+
 const options = {
     enableTime: true,
     time_24hr: true,
@@ -19,25 +22,19 @@ const options = {
     minuteIncrement: 1,
     onClose([selectedDates]) {
         clickTime = selectedDates.getTime();
-        
-        if (clickTime <= Date.now() ) {
-            btn.disabled = true;
-            Notiflix.Notify.failure("Please choose a date in the future")
+        let isTime = clickTime <= Date.now();
+        btn.disabled = isTime;
 
-        } else {
-            btn.disabled = false;
-        }
+        if (isTime) {
+            Notiflix.Notify.failure("Please choose a date in the future")
+        } 
     },
     onChange(){
         clearInterval(timerId)
     }
   };
 
-flatpickr(datetimePicker, options)
-
-btn.disabled = true;
-btn.addEventListener('click', onClick);
-
+  flatpickr(datetimePicker, options);
 
 function onClick() {
     btn.disabled = true;
